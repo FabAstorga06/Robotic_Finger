@@ -3,9 +3,9 @@
 Physical device (a robotic finger) that interacts with a smartphone and a tablet along with the corresponding software layers: device driver, device library, creation of a small language to interact with the robotic finger, an interpretation program for Set up the robotic finger and a test program to evaluate the capabilities of the robotic finger. The main objective is to understand how to interact operating systems with physical devices.
 
 ### Compilation
-Compile the executable files using the configure script `start_rf` in the root directory:
+Compile the executable files using the configure script `rf_conf` in the root directory:
 
-    $ ./start_rf
+    $ ./rf_conf
 
 ### Execution
 

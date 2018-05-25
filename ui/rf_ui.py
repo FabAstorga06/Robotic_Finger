@@ -5,15 +5,15 @@ import os
 ##########################################################################################
 # Verificacion de entradas
 def write_touch():
-   config_file = open('../conf','a')
+   config_file = open('../routine','a')
    config_file.write("touch\n")
    config_file.close()
 
 def write_move():
   try:
-    if (int(e1.get())>0 and int(e2.get())>0):
-      config_file = open('../conf','a')
-      config_file.write("move "+ e1.get() + ", " + e2.get() +"\n")
+    if (int(e1.get())>=0 and int(e2.get())>=0):
+      config_file = open('../routine','a')
+      config_file.write("move "+ e1.get() + "," + e2.get() +"\n")
       config_file.close()
       message_err.set("")
     else: 
@@ -24,7 +24,7 @@ def write_move():
 def write_press():
   try:
     if (int(e3.get())>0):
-      config_file = open('../conf','a')
+      config_file = open('../routine','a')
       config_file.write("press "+ e3.get() +"\n")
       config_file.close()
       message_err.set("")
@@ -35,9 +35,9 @@ def write_press():
 
 def write_mp():
   try:
-    if (int(e4.get())>0 and int(e5.get())>0):
-      config_file = open('../conf','a')
-      config_file.write("move "+ e4.get() + ", " + e5.get() +"\n")
+    if (int(e4.get())>=0 and int(e5.get())>=0):
+      config_file = open('../routine','a')
+      config_file.write("map "+ e4.get() + "," + e5.get() +"\n")
       config_file.close()
       message_err.set("")
     else: 
@@ -51,7 +51,7 @@ def write_pin():
     if(pin > 999999 or pin < 100000):
       message_err.set("Insert PIN with 6 digits...")
     else:
-      config_file = open('../conf','a')
+      config_file = open('../routine','a')
       config_file.write("pin "+ e6.get() +"\n")
       config_file.close()
       message_err.set("")
@@ -59,10 +59,27 @@ def write_pin():
     message_err.set("Insert numerical PIN...")
 
 def init_routine():
- # os.system("./../interpreter/roboticFinger -c ../conf -p 0 -s 3")
-  os.remove("../conf")
+  size = 0
+  if (opt.get() == "1x1"):
+    size = 1
+  elif (opt.get() == "2x2"):
+    size = 2
+  else:
+    size = 4
+  command = "./../interpreter/roboticFinger -c ../routine -p 0 -s " + str(size)
+
+  # Run robotic finger 
+  #os.system(command)
+  #Remove file 
+  os.remove("../routine")
 
 ##########################################################################################
+
+OPTIONS = [
+"1x1",
+"2x2",
+"4x4"
+]
 
 master = Tk()
 master.title("Robotic Finger")
@@ -70,13 +87,18 @@ master.title("Robotic Finger")
 logo = PhotoImage(file="robot.png")
 w1 = Label(master, image=logo).grid(row=4,column=8)
 
+opt = StringVar(master)
+opt.set(OPTIONS[0]) # default value
+w = OptionMenu(master, opt, *OPTIONS)
+w.grid(row=4,column=0)
+
 message_err = StringVar()
 displayLab = Label(master, textvariable=message_err)
 displayLab.grid(row=4,column=1)
 
 Label(master, text="Move").grid(row=0,column=0)
 Label(master, text="Press").grid(row=1,column=0)
-Label(master, text="Move&Press").grid(row=2,column=0)
+Label(master, text="Move & Press").grid(row=2,column=0)
 Label(master, text="PIN").grid(row=3,column=0)
 
 e1 = Entry(master) #MOVE

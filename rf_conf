@@ -1,9 +1,14 @@
 #!/bin/bash
 
+#compile interpreter and driver
 cd interpreter
 make
 cd ../driver
 make
+#configure permissions and init driver
 sudo rmmod cdc_acm
 sudo insmod finger_driver.ko
 sudo chmod 666 /dev/finger0
+#init GUI
+cd ../ui
+python3 rf_ui.py

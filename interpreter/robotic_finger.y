@@ -14,43 +14,45 @@ FILE *error_log_file;		//Error log file
 
 int line_no = 1;	//Line being analyzed
 int t = 0;			// Time to be pressed the current position
-int x = 0;			// x coordinate matrix
-int y = 0;			// y coordenate matrix
+int target = 0;			// number target from the keyboard
 int p = 0;			// PIN
 int default_keyboard_size = 1;	//Keyboard size, default 1x1cm
-
-const int keyboard[3][10][2] = {		{{95,70}, 
-													{40,100},
-													{40,70},
-													{40,40},
-													{58,100},
-													{58,70},	
-													{58,40},
-													{76,100},
-													{76,70},
-													{76,40}},
-											/***********************/
-													{{140,65},
-													{20,130},
-													{20,65},
-													{20,20},
-													{60,130},
-													{60,65},
-													{60,20},
-													{100,130},
-													{100,65},
-													{100,20}},
-                                            /***********************/
-													{{180,70},
-													{0,150},
-													{0,70},
-													{0,0},
-													{60,150},
-													{60,70},
-													{60,0},
-													{120,150},
-													{120,70},
-													{120,0}}};
+											/*************1x1**************/
+const float keyboard[3][10][3] = {		{			{37,74,73},		
+													{49,93,73.5},   
+													{53,88,72},
+													{54,81,71.5},
+													{44.5,91,72},
+													{47,84,71},
+													{49,77,72},	
+													{39,86,72},
+													{42,80,72},
+													{45.5,74,73.5}
+										},
+											/************2x2***********/
+										{			{44,66,76},
+													{69,97,73},
+													{71,85,72},
+													{74,73,74},
+													{58,89,71},
+													{60,79,74},
+													{65,64,76},
+													{47,86,71},
+													{51,74,72},
+													{55,61,75}
+										},
+                                            /************4x4***********/
+										{			{55,45,80},
+													{110,90,72},
+													{105,65,76},
+													{100,30,88},
+													{90,98,73},
+													{90,65,75},
+													{90,35,85},
+													{65,85,72},
+													{70,60,80},
+													{73,30,89}
+										}									};
 
 %}
 
@@ -87,13 +89,13 @@ instruction:
 	;
 
 instr_touch:
-	INST_TOUCH				{touch();}
+	INST_TOUCH				{ touch();  }
 	;
 
 instr_press:
 	INST_PRESS time		{
-							if (t > 255)  {
-								yyerror("Push time cannot exceed 255 seconds");							
+							if (t > 50)  {
+								yyerror("Push time cannot exceed 50 seconds");							
 							}
 							else	      {
 								press(t);
@@ -102,7 +104,9 @@ instr_press:
 	;
 
 instr_move:
-	INST_MOVE x_target ',' y_target 	{ move(x, y); }
+	INST_MOVE num_target  	{ move(keyboard[default_keyboard_size-1][target][0], 
+											keyboard[default_keyboard_size-1][target][1],
+											keyboard[default_keyboard_size-1][target][2]);   }
 	;
 
 instr_pin:
@@ -117,9 +121,11 @@ instr_pin:
 	;
 
 instr_map:
-	INST_MAP x_target ',' y_target 		{
-											touch();
-											move(x, y);
+	INST_MAP num_target		{
+											move(keyboard[default_keyboard_size-1][target][0], 
+												keyboard[default_keyboard_size-1][target][1],
+												keyboard[default_keyboard_size-1][target][2]);
+											touch(); 
 										}
 	;
 
@@ -127,27 +133,17 @@ time:
 	NUMBER					{ t = $<ival>1; }
 	;
 
-x_target:
+num_target:
 	NUMBER					{
-								x = $<ival>1;
-								if (x > 120)
+								target = $<ival>1;
+								if (target > 9)
 								{
-									yyerror("Invalid X coordinate");
-									x = 0;
+									yyerror("Invalid key");
+									target = 0;
 								}
 							}
 	;
 
-y_target:
-	NUMBER					{
-								y = $<ival>1;
-								if (y > 90)
-								{
-									yyerror("Invalid Y coordinate");
-									y = 0;
-								}
-							}
-	;
 
 pin:
 	NUMBER					{ p = $<ival>1; }
@@ -160,10 +156,10 @@ void enter_pin(int pin )  {
 	sprintf(pin_buffer, "%d", pin);
 	for(int i = 0; i < 6; ++i) {
 		int digit = pin_buffer[i] - '0';
-		move_deg(keyboard[default_keyboard_size-1][digit][0], 
-					keyboard[default_keyboard_size-1][digit][1]);
+		move(keyboard[default_keyboard_size-1][digit][0], 
+					keyboard[default_keyboard_size-1][digit][1],
+					keyboard[default_keyboard_size-1][digit][2]		);
 		touch();
-		//usleep(250000);
 	}
 }
 
@@ -200,7 +196,11 @@ int main(int argc, char **argv )  {
 			break;
 		case 's':
 			//Set keyboard size
-			default_keyboard_size = atoi(optarg);
+			if (atoi(optarg) == 4) {
+				default_keyboard_size = 3;
+			} else {
+				default_keyboard_size = atoi(optarg);
+			}
 			break;
 		case 'p':
 			//Set hardware port
@@ -246,7 +246,7 @@ int main(int argc, char **argv )  {
 	}
 	
 	//Open the error log
-	error_log_file = fopen("error_log.txt", "w");
+	error_log_file = fopen("errlog.txt", "w");
 
 	//Set file to be parsed	
 	yyin = config_file;

@@ -11,15 +11,15 @@ def write_touch():
 
 def write_move():
   try:
-    if (int(e1.get())>=0 and int(e2.get())>=0):
+    if (int(e1.get())>=0 ):
       config_file = open('../routine','a')
-      config_file.write("move "+ e1.get() + "," + e2.get() +"\n")
+      config_file.write("move "+ e1.get()+"\n")
       config_file.close()
       message_err.set("")
     else: 
-      message_err.set("Insert positive coordinates...")
+      message_err.set("Insert positive key...")
   except:
-    message_err.set("Insert integer numbers...")
+    message_err.set("Insert integer number...")
 
 def write_press():
   try:
@@ -35,15 +35,15 @@ def write_press():
 
 def write_mp():
   try:
-    if (int(e4.get())>=0 and int(e5.get())>=0):
+    if (int(e4.get())>=0 ):
       config_file = open('../routine','a')
-      config_file.write("map "+ e4.get() + "," + e5.get() +"\n")
+      config_file.write("map "+ e4.get()+"\n")
       config_file.close()
       message_err.set("")
     else: 
-      message_err.set("Insert positive coordinates..")
+      message_err.set("Insert positive key..")
   except:
-    message_err.set("Insert integer numbers...")
+    message_err.set("Insert integer number...")
 
 def write_pin():
   try:
@@ -66,12 +66,15 @@ def init_routine():
     size = 2
   else:
     size = 4
-  command = "./../interpreter/roboticFinger -c ../routine -p 0 -s " + str(size)
+  command = "./../interpreter/roboticFinger -c ../routine -p " + port + " -s " + str(size)
 
-  # Run robotic finger 
-  #os.system(command)
-  #Remove file 
-  os.remove("../routine")
+  try:
+    # Run robotic finger 
+    os.system(command)
+    #Remove file 
+    os.remove("../routine")
+  except:
+    print("routine file doesn't exist. Try again...")
 
 ##########################################################################################
 
@@ -80,6 +83,8 @@ OPTIONS = [
 "2x2",
 "4x4"
 ]
+
+port = "/dev/finger0"
 
 master = Tk()
 master.title("Robotic Finger")
@@ -102,17 +107,13 @@ Label(master, text="Move & Press").grid(row=2,column=0)
 Label(master, text="PIN").grid(row=3,column=0)
 
 e1 = Entry(master) #MOVE
-e2 = Entry(master) #MOVE
 e3 = Entry(master) #PRESS
 e4 = Entry(master) #M&P
-e5 = Entry(master) #M&P
 e6 = Entry(master) #PIN
 
 e1.grid(row=0, column=1)
-e2.grid(row=0, column=2)
 e3.grid(row=1, column=1)
 e4.grid(row=2, column=1)
-e5.grid(row=2, column=2)
 e6.grid(row=3, column=1)
 
 ##########################################################################################
